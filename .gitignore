@@ -1,5 +1,7 @@
 data/
 *.csv
 *.xlsx
-~*.xlsx
+~$*.xlsx
 *.tmp
+.ipynb_checkpoints/
+.virtual_documents/
