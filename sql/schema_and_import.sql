@@ -80,12 +80,12 @@ SET
     order_delivered_customer_date = NULLIF(@order_delivered_customer_date, ''),
     carrier_before_approval = CASE
 		WHEN @carrier_before_approval = 'True' THEN 1 
-        WHEN @carrier_before_approval = 'False' THEN 1
+        WHEN @carrier_before_approval = 'False' THEN 0
         ELSE NULL
 	END,
-    carrier_before_approval = CASE
+    delivered_before_carrier = CASE
 		WHEN @carrier_before_approval = 'True' THEN 1 
-        WHEN @carrier_before_approval = 'False' THEN 1
+        WHEN @carrier_before_approval = 'False' THEN 0
         ELSE NULL
 	END;
 

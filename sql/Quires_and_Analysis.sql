@@ -145,4 +145,3 @@ ORDER BY AvgScore DESC;
    Orders with longer seller handling time have lower average review scores, so sellers should try to process and hand over orders to the carrier faster.
 
 */
-    
