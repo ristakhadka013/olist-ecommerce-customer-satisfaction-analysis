@@ -53,7 +53,9 @@ CREATE TABLE Orders(
     order_delivered_customer_date DATETIME,
     order_estimated_delivery_date DATETIME,
     carrier_before_approval BOOL,
-    delivered_before_carrier BOOL
+    delivered_before_carrier BOOL,
+    handling_days fLOAT,
+    handling_category VARCHAR(40)
 );
 
 LOAD DATA LOCAL INFILE '/Users/ristakhadka/Developer/DATA ANALYTICS/olist-ecommerce-customer-satisfaction-analysis/data/orders.csv'
@@ -72,7 +74,9 @@ IGNORE 1 ROWS
     @order_delivered_customer_date,
     order_estimated_delivery_date,
     @carrier_before_approval,
-    @delivered_before_carrier
+    @delivered_before_carrier,
+    @handling_days,
+    @handling_category
 )
 SET 
 	order_approved_at = NULLIF(@order_approved_at, ''),
@@ -87,7 +91,10 @@ SET
 		WHEN @carrier_before_approval = 'True' THEN 1 
         WHEN @carrier_before_approval = 'False' THEN 0
         ELSE NULL
-	END;
+	END,
+    handling_days = NULLIF(@handling_days, ''),
+    handling_category = NULLIF(@handling_category, '');
+    
 
 CREATE TABLE Order_items(
 	order_id VARCHAR(40),
@@ -126,7 +133,6 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
-
 
 SELECT 
 	'Product' AS TABLENAME,
