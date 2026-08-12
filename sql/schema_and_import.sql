@@ -43,6 +43,21 @@ SET
     product_height_cm = NULLIF(@product_height_cm, ''),
     product_width_cm = NULLIF(@product_width_cm, '');
     
+CREATE TABLE Customers(
+	customer_id VARCHAR(40) PRIMARY KEY,
+    customer_unique_id VARCHAR(100),
+    customer_zip_code_prefix INT,
+    customer_city VARCHAR(100),
+    customer_state VARCHAR(100)
+);
+
+LOAD DATA LOCAL INFILE '/Users/ristakhadka/Developer/DATA ANALYTICS/olist-ecommerce-customer-satisfaction-analysis/data/Orginal data/olist_customers_dataset.csv'
+INTO TABLE Customers
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
 CREATE TABLE Orders(
 	order_id VARCHAR(40) PRIMARY KEY,
     customer_id VARCHAR(40),
@@ -95,7 +110,6 @@ SET
     handling_days = NULLIF(@handling_days, ''),
     handling_category = NULLIF(@handling_category, '');
     
-
 CREATE TABLE Order_items(
 	order_id VARCHAR(40),
     order_item_id INT,
