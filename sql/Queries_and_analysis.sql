@@ -217,3 +217,43 @@ ORDER BY AvgDeliveryDays DESC;
 	The company should focus on areas with longer delivery times and find ways to reduce delivery delays.
 
 */
+
+CREATE TABLE extreme_delay_kpis AS
+SELECT
+    ROUND(AVG(seller_handling_days), 2) AS avg_seller_handling_days,
+    ROUND(AVG(shipping_days), 2) AS avg_carrier_shipping_days,
+    ROUND(
+        AVG(shipping_days) /
+        (AVG(seller_handling_days) + AVG(shipping_days)) * 100,
+        2
+    ) AS carrier_contribution_pct
+FROM (
+    SELECT
+        seller_handling_days,
+        shipping_days
+    FROM (
+        SELECT
+            order_id,
+            DATEDIFF(
+                order_delivered_customer_date,
+                order_purchase_timestamp
+            ) AS total_delivery_days,
+            DATEDIFF(
+                order_delivered_carrier_date,
+                order_approved_at
+            ) AS seller_handling_days,
+            DATEDIFF(
+                order_delivered_customer_date,
+                order_delivered_carrier_date
+            ) AS shipping_days
+        FROM Orders
+        WHERE order_purchase_timestamp IS NOT NULL
+          AND order_approved_at IS NOT NULL
+          AND order_delivered_carrier_date IS NOT NULL
+          AND order_delivered_customer_date IS NOT NULL
+    ) AS DeliveryTime
+    ORDER BY total_delivery_days DESC
+    LIMIT 1000
+) AS ExtremeDelays;
+
+SELECT * FROM extreme_delay_kpis;
