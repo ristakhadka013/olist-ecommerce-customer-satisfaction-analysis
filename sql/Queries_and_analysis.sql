@@ -21,9 +21,6 @@ AND order_estimated_delivery_date IS NOT NULL;
 
 SET SQL_SAFE_UPDATES = 1;
 
-ALTER TABLE Orders
-DROP COLUMN delivery_category;
-
 # for this analysis, we use review score as a proxy of customer satisfaction
 
 # Hypothesis 1 : Late Delivery may leads lower customer satisfaction
