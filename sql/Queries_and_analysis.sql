@@ -195,9 +195,9 @@ WHERE o.order_purchase_timestamp IS NOT NULL
 GROUP BY c.customer_state
 ORDER BY AvgDeliveryDays DESC;
 
-#Finding: I compared average delivery time across different states.I noticed:that ES state has the highest average delivery time of 29.34 days.
+#Finding: I compared average delivery time across different states.I noticed that RR state has the highest average delivery time of 29.34 days.
 
-#Interpretation: This suggests that customers in ES stae area may experience longer delivery times, possibly due to distance or logistics constraints.
+#Interpretation: This suggests that customers in RR state area may experience longer delivery times, possibly due to distance or logistics constraints.
 -- --------------------------------------------------------------------------------------------------------------------------------------------
 /* BUSINESS RECOMMENDATION THROUGH MY HYPOTHESIS 
 
@@ -217,43 +217,60 @@ ORDER BY AvgDeliveryDays DESC;
 	The company should focus on areas with longer delivery times and find ways to reduce delivery delays.
 
 */
+drop table extreme_delay_kpis ;
 
 CREATE TABLE extreme_delay_kpis AS
+WITH DeliveryTime AS (
+    SELECT
+        order_id,
+        DATEDIFF(
+            order_delivered_customer_date,
+            order_purchase_timestamp
+        ) AS total_delivery_days,
+        DATEDIFF(
+            order_delivered_carrier_date,
+            order_approved_at
+        ) AS seller_handling_days,
+        DATEDIFF(
+            order_delivered_customer_date,
+            order_delivered_carrier_date
+        ) AS shipping_days
+    FROM Orders
+    WHERE order_purchase_timestamp IS NOT NULL
+      AND order_approved_at IS NOT NULL
+      AND order_delivered_carrier_date IS NOT NULL
+      AND order_delivered_customer_date IS NOT NULL
+),
+
+Ranked AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            ORDER BY total_delivery_days DESC
+        ) AS rn,
+        COUNT(*) OVER () AS total_orders
+    FROM DeliveryTime
+),
+
+ExtremeDelays AS (
+    SELECT *
+    FROM Ranked
+    WHERE rn <= CEIL(total_orders * 0.01)
+)
+
 SELECT
-    ROUND(AVG(seller_handling_days), 2) AS avg_seller_handling_days,
-    ROUND(AVG(shipping_days), 2) AS avg_carrier_shipping_days,
+    ROUND(AVG(seller_handling_days), 2) AS AvgSellerHandling,
+    ROUND(AVG(shipping_days), 2) AS AvgCarrierShipping,
+    ROUND(
+        AVG(seller_handling_days) /
+        (AVG(seller_handling_days) + AVG(shipping_days)) * 100,
+        2
+    ) AS SellerContributionPct,
     ROUND(
         AVG(shipping_days) /
         (AVG(seller_handling_days) + AVG(shipping_days)) * 100,
         2
-    ) AS carrier_contribution_pct
-FROM (
-    SELECT
-        seller_handling_days,
-        shipping_days
-    FROM (
-        SELECT
-            order_id,
-            DATEDIFF(
-                order_delivered_customer_date,
-                order_purchase_timestamp
-            ) AS total_delivery_days,
-            DATEDIFF(
-                order_delivered_carrier_date,
-                order_approved_at
-            ) AS seller_handling_days,
-            DATEDIFF(
-                order_delivered_customer_date,
-                order_delivered_carrier_date
-            ) AS shipping_days
-        FROM Orders
-        WHERE order_purchase_timestamp IS NOT NULL
-          AND order_approved_at IS NOT NULL
-          AND order_delivered_carrier_date IS NOT NULL
-          AND order_delivered_customer_date IS NOT NULL
-    ) AS DeliveryTime
-    ORDER BY total_delivery_days DESC
-    LIMIT 1000
-) AS ExtremeDelays;
+    ) AS CarrierContributionPct
+FROM ExtremeDelays;
 
 SELECT * FROM extreme_delay_kpis;
