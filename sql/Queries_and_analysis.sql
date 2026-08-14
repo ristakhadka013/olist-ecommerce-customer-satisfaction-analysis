@@ -250,27 +250,11 @@ Ranked AS (
         ) AS rn,
         COUNT(*) OVER () AS total_orders
     FROM DeliveryTime
-),
-
-ExtremeDelays AS (
-    SELECT *
-    FROM Ranked
-    WHERE rn <= CEIL(total_orders * 0.01)
 )
 
-SELECT
-    ROUND(AVG(seller_handling_days), 2) AS AvgSellerHandling,
-    ROUND(AVG(shipping_days), 2) AS AvgCarrierShipping,
-    ROUND(
-        AVG(seller_handling_days) /
-        (AVG(seller_handling_days) + AVG(shipping_days)) * 100,
-        2
-    ) AS SellerContributionPct,
-    ROUND(
-        AVG(shipping_days) /
-        (AVG(seller_handling_days) + AVG(shipping_days)) * 100,
-        2
-    ) AS CarrierContributionPct
-FROM ExtremeDelays;
+SELECT *
+FROM Ranked
+WHERE rn <= CEIL(total_orders * 0.01);
+
 
 SELECT * FROM extreme_delay_kpis;
