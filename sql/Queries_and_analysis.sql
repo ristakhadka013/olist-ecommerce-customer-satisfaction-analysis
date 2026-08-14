@@ -145,15 +145,14 @@ Ranked AS (
         *,
         ROW_NUMBER() OVER (
             ORDER BY total_delivery_days DESC
-        ) AS rn,
-        COUNT(*) OVER () AS total_orders
+        ) AS rn
     FROM DeliveryTime
 ),
 
 ExtremeDelays AS (
-    SELECT *
-    FROM Ranked
-    WHERE rn <= CEIL(total_orders * 0.01)
+	SELECT *
+	FROM Ranked
+	WHERE rn <= CEIL((SELECT COUNT(*) FROM Ranked) * 0.01);
 )
 
 SELECT
@@ -247,14 +246,13 @@ Ranked AS (
         *,
         ROW_NUMBER() OVER (
             ORDER BY total_delivery_days DESC
-        ) AS rn,
-        COUNT(*) OVER () AS total_orders
+        ) AS rn
     FROM DeliveryTime
 )
 
 SELECT *
 FROM Ranked
-WHERE rn <= CEIL(total_orders * 0.01);
+WHERE rn <= CEIL((SELECT COUNT(*) FROM Ranked) * 0.01);
 
 
 SELECT * FROM extreme_delay_kpis;
