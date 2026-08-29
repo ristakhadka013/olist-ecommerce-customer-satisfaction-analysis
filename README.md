@@ -232,28 +232,6 @@ Built an interactive Power BI dashboard to communicate the most important findin
 
 ---
 
-# 📁 Project Structure
-
-```text
-olist-ecommerce-customer-satisfaction-analysis/
-│
-├── data/
-│   └── ...
-│
-├── python/
-│   └── data_cleaning.ipynb
-│
-├── sql/
-│   └── analysis.sql
-│
-├── powerbi/
-│   └── Dashboard.jpg
-│
-└── README.md
-```
-
----
-
 # 🎯 Conclusion
 
 This project demonstrates an end-to-end analytics workflow using **Python, SQL, and Power BI** to investigate a real-world business problem.
